@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>电商利润计算器</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#3b82f6',
+            secondary: '#f97316',
+            success: '#10b981',
+            danger: '#ef4444',
+            neutral: '#64748b'
+          },
+          fontFamily: {
+            inter: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .card-shadow {
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.03);
+      }
+      .input-focus {
+        @apply focus:ring-2 focus:ring-primary/50 focus:border-primary;
+      }
+      .result-card {
+        transition: all 0.3s ease;
+      }
+      .result-card:hover {
+        transform: translateY(-5px);
+      }
+    }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen font-inter text-gray-800">
+  <div class="container mx-auto px-4 py-12 max-w-5xl">
+    <!-- 标题区域 -->
+    <header class="text-center mb-10">
+      <h1 class="text-[clamp(1.8rem,4vw,2.8rem)] font-bold text-gray-800 mb-3">电商利润计算器</h1>
+      <p class="text-gray-600 max-w-2xl mx-auto">精确计算您的电商业务利润，帮助您做出明智的商业决策</p>
+    </header>
+    
+    <!-- 主要内容区 -->
+    <main class="bg-white rounded-xl shadow-lg overflow-hidden">
+      <!-- 表单和结果卡片容器 -->
+      <div class="grid md:grid-cols-5 gap-6 p-6 md:p-8">
+        <!-- 表单区域 -->
+        <div class="md:col-span-3 space-y-6">
+          <div class="bg-gray-50 p-6 rounded-lg card-shadow">
+            <h2 class="text-xl font-semibold mb-4 flex items-center">
+              <i class="fa fa-calculator text-primary mr-2"></i> 基本信息
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label for="cost" class="block text-sm font-medium text-gray-700 mb-1">成本 (元/件)</label>
+                <div class="relative">
+                  <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">
+                    <i class="fa fa-cny"></i>
+                  </span>
+                  <input type="number" id="cost" class="pl-10 w-full px-4 py-2 border border-gray-300 rounded-lg input-focus transition-all" placeholder="输入成本" min="0" step="0.01" value="50">
+                </div>
+              </div>
+              <div>
+                <label for="price" class="block text-sm font-medium text-gray-700 mb-1">平均售价 (元/件)</label>
+                <div class="relative">
+                  <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">
+                    <i class="fa fa-cny"></i>
+                  </span>
+                  <input type="number" id="price" class="pl-10 w-full px-4 py-2 border border-gray-300 rounded-lg input-focus transition-all" placeholder="输入售价" min="0" step="0.01" value="100">
+                </div>
+              </div>
+              <div>
+                <label for="inventory" class="block text-sm font-medium text-gray-700 mb-1">库存数量 (件)</label>
+                <div class="relative">
+                  <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">
+                    <i class="fa fa-cubes"></i>
+                  </span>
+                  <input type="number" id="inventory" class="pl-10 w-full px-4 py-2 border border-gray-300 rounded-lg input-focus transition-all" placeholder="输入库存" min="0" step="1" value="100">
+                </div>
+              </div>
+              <div>
+                <label for="shipping" class="block text-sm font-medium text-gray-700 mb-1">运费 (元/件)</label>
+                <div class="relative">
+                  <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">
+                    <i class="fa fa-truck"></i>
+                  </span>
+                  <input type="number" id="shipping" class="pl-10 w-full px-4 py-2 border border-gray-300 rounded-lg input-focus transition-all" placeholder="输入运费" min="0" step="0.01" value="10">
+                </div>
+              </div>
+              <div class="md:col-span-2">
+                <label for="insurance" class="block text-sm font-medium text-gray-700 mb-1">运费险 (元/件)</label>
+                <div class="relative">
+                  <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">
+                    <i class="fa fa-shield"></i>
+                  </span>
+                  <input type="number" id="insurance" class="pl-10 w-full px-4 py-2 border border-gray-300 rounded-lg input-focus transition-all" placeholder="输入运费险" min="0" step="0.01" value="2">
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="bg-gray-50 p-6 rounded-lg card-shadow">
+            <h2 class="text-xl font-semibold mb-4 flex items-center">
+              <i class="fa fa-shopping-cart text-secondary mr-2"></i> 销售信息
+            </h2>
+            <div>
+              <label for="sold" class="block text-sm font-medium text-gray-700 mb-1">已销售数量 (件)</label>
+              <div class="relative">
+                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">
+                  <i class="fa fa-tag"></i>
+                </span>
+                <input type="number" id="sold" class="pl-10 w-full px-4 py-2 border border-gray-300 rounded-lg input-focus transition-all" placeholder="输入已销售数量" min="0" max="100" step="1" value="50">
+              </div>
+              <div class="mt-4 flex justify-between items-center">
+                <div class="flex items-center">
+                  <input type="checkbox" id="calculate-loss" class="h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary" checked>
+                  <label for="calculate-loss" class="ml-2 block text-sm text-gray-700">计算未售出商品损失</label>
+                </div>
+                <button id="calculate-btn" class="bg-primary hover:bg-primary/90 text-white px-6 py-2 rounded-lg transition-all flex items-center">
+                  <i class="fa fa-calculator mr-2"></i> 计算
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 结果展示区域 -->
+        <div class="md:col-span-2 space-y-4">
+          <div class="bg-gradient-to-br from-primary/5 to-primary/10 p-6 rounded-lg card-shadow result-card">
+            <h2 class="text-xl font-semibold mb-4 flex items-center">
+              <i class="fa fa-line-chart text-primary mr-2"></i> 销售结果
+            </h2>
+            <div class="space-y-4">
+              <div>
+                <div class="flex justify-between text-sm text-gray-500 mb-1">
+                  <span>总收入</span>
+                  <span id="total-revenue">-</span>
+                </div>
+                <div class="h-1 bg-gray-200 rounded-full overflow-hidden">
+                  <div class="h-full bg-primary" style="width: 0%"></div>
+                </div>
+              </div>
+              <div>
+                <div class="flex justify-between text-sm text-gray-500 mb-1">
+                  <span>总成本</span>
+                  <span id="total-cost">-</span>
+                </div>
+                <div class="h-1 bg-gray-200 rounded-full overflow-hidden">
+                  <div class="h-full bg-secondary" style="width: 0%"></div>
+                </div>
+              </div>
+              <div>
+                <div class="flex justify-between text-sm text-gray-500 mb-1">
+                  <span>纯利润</span>
+                  <span id="net-profit">-</span>
+                </div>
+                <div class="h-1 bg-gray-200 rounded-full overflow-hidden">
+                  <div class="h-full bg-success" style="width: 0%"></div>
+                </div>
+              </div>
+              <div>
+                <div class="flex justify-between text-sm text-gray-500 mb-1">
+                  <span>利润率</span>
+                  <span id="profit-rate">-</span>
+                </div>
+                <div class="h-1 bg-gray-200 rounded-full overflow-hidden">
+                  <div class="h-full bg-success" style="width: 0%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div id="loss-section" class="bg-gradient-to-br from-danger/5 to-danger/10 p-6 rounded-lg card-shadow result-card">
+            <h2 class="text-xl font-semibold mb-4 flex items-center">
+              <i class="fa fa-exclamation-triangle text-danger mr-2"></i> 库存情况
+            </h2>
+            <div class="space-y-4">
+              <div>
+                <div class="flex justify-between text-sm text-gray-500 mb-1">
+                  <span>剩余库存</span>
+                  <span id="remaining-inventory">-</span>
+                </div>
+                <div class="h-1 bg-gray-200 rounded-full overflow-hidden">
+                  <div class="h-full bg-danger" style="width: 0%"></div>
+                </div>
+              </div>
+              <div>
+                <div class="flex justify-between text-sm text-gray-500 mb-1">
+                  <span>库存成本</span>
+                  <span id="inventory-cost">-</span>
+                </div>
+                <div class="h-1 bg-gray-200 rounded-full overflow-hidden">
+                  <div class="h-full bg-danger" style="width: 0%"></div>
+                </div>
+              </div>
+              <div>
+                <div class="flex justify-between text-sm text-gray-500 mb-1">
+                  <span>扣库存后利润</span>
+                  <span id="profit-after-inventory">-</span>
+                </div>
+                <div class="h-1 bg-gray-200 rounded-full overflow-hidden">
+                  <div class="h-full bg-success" style="width: 0%"></div>
+                </div>
+              </div>
+              <div>
+                <div class="flex justify-between text-sm text-gray-500 mb-1">
+                  <span>扣库存后利润率</span>
+                  <span id="profit-rate-after-inventory">-</span>
+                </div>
+                <div class="h-1 bg-gray-200 rounded-full overflow-hidden">
+                  <div class="h-full bg-success" style="width: 0%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+    
+    <!-- 说明区域 -->
+    <div class="mt-10 bg-white rounded-xl shadow-md p-6">
+      <h2 class="text-xl font-semibold mb-4 flex items-center">
+        <i class="fa fa-info-circle text-primary mr-2"></i> 计算公式说明
+      </h2>
+      <div class="grid md:grid-cols-2 gap-6">
+        <div>
+          <h3 class="font-medium text-gray-700 mb-2">销售相关</h3>
+          <ul class="space-y-2 text-gray-600">
+            <li class="flex items-start">
+              <i class="fa fa-check-circle text-success mt-1 mr-2"></i>
+              <span>总收入 = 平均售价 × 销售数量</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fa fa-check-circle text-success mt-1 mr-2"></i>
+              <span>总成本 = (成本 + 运费 + 运费险) × 销售数量</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fa fa-check-circle text-success mt-1 mr-2"></i>
+              <span>纯利润 = 总收入 - 总成本</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fa fa-check-circle text-success mt-1 mr-2"></i>
+              <span>利润率 = (纯利润 ÷ 总收入) × 100%</span>
+            </li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="font-medium text-gray-700 mb-2">库存相关</h3>
+          <ul class="space-y-2 text-gray-600">
+            <li class="flex items-start">
+              <i class="fa fa-check-circle text-danger mt-1 mr-2"></i>
+              <span>剩余库存 = 总库存 - 销售数量</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fa fa-check-circle text-danger mt-1 mr-2"></i>
+              <span>库存成本 = 成本 × 剩余库存</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fa fa-check-circle text-success mt-1 mr-2"></i>
+              <span>扣库存后利润 = 纯利润 - 库存成本</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fa fa-check-circle text-success mt-1 mr-2"></i>
+              <span>扣库存后利润率 = (扣库存后利润 ÷ 总收入) × 100%</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 页脚 -->
+    <footer class="mt-10 text-center text-gray-500 text-sm">
+      <p>© 2025 电商利润计算器 | 帮助您做出更明智的商业决策</p>
+    </footer>
+  </div>
+
+  <script>
+    // 获取DOM元素
+    const costInput = document.getElementById('cost');
+    const priceInput = document.getElementById('price');
+    const inventoryInput = document.getElementById('inventory');
+    const shippingInput = document.getElementById('shipping');
+    const insuranceInput = document.getElementById('insurance');
+    const soldInput = document.getElementById('sold');
+    const calculateBtn = document.getElementById('calculate-btn');
+    const calculateLossCheckbox = document.getElementById('calculate-loss');
+    const lossSection = document.getElementById('loss-section');
+    
+    // 结果元素
+    const totalRevenueElement = document.getElementById('total-revenue');
+    const totalCostElement = document.getElementById('total-cost');
+    const netProfitElement = document.getElementById('net-profit');
+    const profitRateElement = document.getElementById('profit-rate');
+    const remainingInventoryElement = document.getElementById('remaining-inventory');
+    const inventoryCostElement = document.getElementById('inventory-cost');
+    const profitAfterInventoryElement = document.getElementById('profit-after-inventory');
+    const profitRateAfterInventoryElement = document.getElementById('profit-rate-after-inventory');
+    
+    // 进度条元素
+    const revenueProgress = document.querySelector('#total-revenue + div .bg-primary');
+    const costProgress = document.querySelector('#total-cost + div .bg-secondary');
+    const profitProgress = document.querySelector('#net-profit + div .bg-success');
+    const profitRateProgress = document.querySelector('#profit-rate + div .bg-success');
+    const inventoryProgress = document.querySelector('#remaining-inventory + div .bg-danger');
+    const inventoryCostProgress = document.querySelector('#inventory-cost + div .bg-danger');
+    const profitAfterInventoryProgress = document.querySelector('#profit-after-inventory + div .bg-success');
+    const profitRateAfterInventoryProgress = document.querySelector('#profit-rate-after-inventory + div .bg-success');
+    
+    // 限制已售数量不超过库存
+    soldInput.addEventListener('input', () => {
+      const inventory = parseInt(inventoryInput.value) || 0;
+      const sold = parseInt(soldInput.value) || 0;
+      
+      if (sold > inventory) {
+        soldInput.value = inventory;
+      }
+    });
+    
+    // 库存数量变化时更新已售数量上限
+    inventoryInput.addEventListener('input', () => {
+      const inventory = parseInt(inventoryInput.value) || 0;
+      const sold = parseInt(soldInput.value) || 0;
+      
+      if (sold > inventory) {
+        soldInput.value = inventory;
+      }
+      
+      soldInput.max = inventory;
+    });
+    
+    // 计算按钮点击事件
+    calculateBtn.addEventListener('click', calculateProfit);
+    
+    // 初始化计算
+    window.addEventListener('load', calculateProfit);
+    
+    // 显示/隐藏库存部分
+    calculateLossCheckbox.addEventListener('change', () => {
+      if (calculateLossCheckbox.checked) {
+        lossSection.classList.remove('hidden');
+      } else {
+        lossSection.classList.add('hidden');
+      }
+      calculateProfit();
+    });
+    
+    // 计算利润函数
+    function calculateProfit() {
+      // 获取输入值
+      const cost = parseFloat(costInput.value) || 0;
+      const price = parseFloat(priceInput.value) || 0;
+      const inventory = parseInt(inventoryInput.value) || 0;
+      const shipping = parseFloat(shippingInput.value) || 0;
+      const insurance = parseFloat(insuranceInput.value) || 0;
+      const sold = parseInt(soldInput.value) || 0;
+      const calculateLoss = calculateLossCheckbox.checked;
+      
+      // 计算各项指标
+      const totalRevenue = price * sold;
+      const totalCost = (cost + shipping + insurance) * sold;
+      let netProfit = totalRevenue - totalCost;
+      let profitRate = totalRevenue > 0 ? (netProfit / totalRevenue) * 100 : 0;
+      
+      const remainingInventory = inventory - sold;
+      const inventoryCost = remainingInventory * cost;
+      let profitAfterInventory = netProfit - (calculateLoss ? inventoryCost : 0);
+      let profitRateAfterInventory = totalRevenue > 0 ? (profitAfterInventory / totalRevenue) * 100 : 0;
+      
+      // 更新UI显示
+      updateDisplay(totalRevenue, totalCost, netProfit, profitRate, 
+                    remainingInventory, inventoryCost, profitAfterInventory, profitRateAfterInventory);
+    }
+    
+    // 更新显示
+    function updateDisplay(revenue, cost, profit, profitRate, inventory, inventoryCost, profitAfterInventory, profitRateAfterInventory) {
+      // 格式化货币
+      const formatCurrency = (value) => {
+        return value.toLocaleString('zh-CN', {
+          style: 'currency',
+          currency: 'CNY',
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
+      };
+      
+      // 格式化百分比
+      const formatPercent = (value) => {
+        return value.toFixed(2) + '%';
+      };
+      
+      // 更新文本显示
+      totalRevenueElement.textContent = formatCurrency(revenue);
+      totalCostElement.textContent = formatCurrency(cost);
+      
+      // 设置利润颜色
+      if (profit >= 0) {
+        netProfitElement.textContent = '+' + formatCurrency(profit);
+        netProfitElement.className = 'text-success font-medium';
+      } else {
+        netProfitElement.textContent = formatCurrency(profit);
+        netProfitElement.className = 'text-danger font-medium';
+      }
+      
+      // 设置利润率颜色
+      if (profitRate >= 0) {
+        profitRateElement.textContent = '+' + formatPercent(profitRate);
+        profitRateElement.className = profitRate >= 30 ? 'text-success font-medium' : 'text-gray-700 font-medium';
+      } else {
+        profitRateElement.textContent = formatPercent(profitRate);
+        profitRateElement.className = 'text-danger font-medium';
+      }
+      
+      remainingInventoryElement.textContent = inventory + ' 件';
+      inventoryCostElement.textContent = formatCurrency(inventoryCost);
+      
+      // 设置扣除库存后利润颜色
+      if (profitAfterInventory >= 0) {
+        profitAfterInventoryElement.textContent = '+' + formatCurrency(profitAfterInventory);
+        profitAfterInventoryElement.className = 'text-success font-medium';
+      } else {
+        profitAfterInventoryElement.textContent = formatCurrency(profitAfterInventory);
+        profitAfterInventoryElement.className = 'text-danger font-medium';
+      }
+      
+      // 设置扣除库存后利润率颜色
+      if (profitRateAfterInventory >= 0) {
+        profitRateAfterInventoryElement.textContent = '+' + formatPercent(profitRateAfterInventory);
+        profitRateAfterInventoryElement.className = profitRateAfterInventory >= 30 ? 'text-success font-medium' : 'text-gray-700 font-medium';
+      } else {
+        profitRateAfterInventoryElement.textContent = formatPercent(profitRateAfterInventory);
+        profitRateAfterInventoryElement.className = 'text-danger font-medium';
+      }
+      
+      // 更新进度条
+      const maxValue = Math.max(revenue, cost, Math.abs(profit), Math.abs(profitAfterInventory), inventoryCost);
+      
+      updateProgressBar(revenueProgress, revenue, maxValue);
+      updateProgressBar(costProgress, cost, maxValue);
+      updateProgressBar(profitProgress, Math.abs(profit), maxValue);
+      updateProgressBar(profitRateProgress, Math.abs(profitRate), 100);
+      updateProgressBar(inventoryProgress, inventory, parseInt(inventoryInput.value) || 1);
+      updateProgressBar(inventoryCostProgress, inventoryCost, maxValue);
+      updateProgressBar(profitAfterInventoryProgress, Math.abs(profitAfterInventory), maxValue);
+      updateProgressBar(profitRateAfterInventoryProgress, Math.abs(profitRateAfterInventory), 100);
+    }
+    
+    // 更新进度条
+    function updateProgressBar(element, value, max) {
+      const percentage = (value / max) * 100;
+      element.style.width = `${percentage}%`;
+      
+      // 添加动画效果
+      element.classList.remove('transition-all', 'duration-700');
+      void element.offsetWidth; // 触发重绘
+      element.classList.add('transition-all', 'duration-700');
+    }
+    
+    // 辅助函数：格式化货币
+    function formatCurrency(value) {
+      return value.toLocaleString('zh-CN', {
+        style: 'currency',
+        currency: 'CNY',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
+  </script>
+</body>
+</html>
+    
